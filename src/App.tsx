@@ -79,6 +79,8 @@ import PurchaseOrdersPage from "./pages/dashboard/PurchaseOrdersPage";
 import TreatmentMaterialsPage from "./pages/dashboard/TreatmentMaterialsPage";
 import AdvancedAnalyticsPage from "./pages/dashboard/AdvancedAnalyticsPage";
 import ShopManagementPage from "./pages/dashboard/ShopManagementPage";
+import BranchesPage from "./pages/dashboard/BranchesPage";
+import { MainClinicOnly } from "@/components/dashboard/MainClinicOnly";
 
 // Diagnostic centre — laboratory
 import LabOverviewPage from "./pages/dashboard/lab/LabOverviewPage";
@@ -308,14 +310,15 @@ const App = () => (
               <Route path="consent-forms" element={<ConsentFormsPage />} />
               <Route path="documents" element={<DocumentsPage />} />
               <Route path="automation" element={<AutomationPage />} />
-              <Route path="website-settings" element={<WebsiteSettingsPage />} />
+              <Route path="website-settings" element={<MainClinicOnly><WebsiteSettingsPage /></MainClinicOnly>} />
+              <Route path="branches" element={<BranchesPage />} />
               <Route path="waiting-list" element={<WaitingListPage />} />
               <Route path="schedules" element={<SchedulesPage />} />
               <Route path="suppliers" element={<SuppliersPage />} />
               <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
               <Route path="treatment-materials" element={<TreatmentMaterialsPage />} />
               <Route path="analytics" element={<AdvancedAnalyticsPage />} />
-              <Route path="shop-management" element={<ShopManagementPage />} />
+              <Route path="shop-management" element={<MainClinicOnly><ShopManagementPage /></MainClinicOnly>} />
               <Route path="marketing" element={<MaintenanceGate><MarketingOverviewPage /></MaintenanceGate>} />
               <Route path="marketing/email" element={<MaintenanceGate><EmailBlastsPage /></MaintenanceGate>} />
               <Route path="marketing/sms" element={<MaintenanceGate><SmsBlastsPage /></MaintenanceGate>} />
