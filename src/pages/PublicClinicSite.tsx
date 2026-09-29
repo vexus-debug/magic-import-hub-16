@@ -200,6 +200,7 @@ export default function PublicClinicSite() {
         .from("organizations")
         .select("id, name, address, phone, email, logo_url, clinic_type, settings")
         .eq("slug", slug)
+        .is("parent_org_id", null)
         .maybeSingle();
 
       if (error || !org) { setNotFound(true); setLoading(false); return; }

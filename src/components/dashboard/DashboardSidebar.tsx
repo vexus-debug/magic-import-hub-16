@@ -5,7 +5,8 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter,
 } from "@/components/ui/sidebar";
-import { LogOut, Building2, Shield, ChevronRight, Lock } from "lucide-react";
+import { LogOut, Building2, Shield, ChevronRight, Lock, GitBranch } from "lucide-react";
+import { BranchSwitcher } from "@/components/dashboard/BranchSwitcher";
 import { useLocation, useNavigate } from "react-router-dom";
 import clinexusLogoRect from "@/assets/site/clinexus-logo-white.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,7 +32,7 @@ export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, user, signOut, orgMemberships, roles } = useAuth();
-  const { currentOrg, basePath } = useOrg();
+  const { currentOrg, basePath, isBranch } = useOrg();
   const { data: unreadCount = 0 } = useUnreadCount();
   const { data: unreadMsgCount = 0 } = useUnreadMessageCount();
   const prefetchPage = usePrefetchPage();
@@ -189,8 +190,23 @@ export function DashboardSidebar() {
       </div>
 
       <SidebarContent className="pt-3 px-2 overflow-y-auto scrollbar-none">
+        <BranchSwitcher collapsed={collapsed} />
+        {!isBranch && (orgRole === "owner" || orgRole === "admin") && (
+          <SidebarGroup className="mb-1">
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <NavItem item={{ title: "Branches", path: "branches", icon: GitBranch }} fullUrl={`${basePath}/branches`} />
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         {config.navGroups.map((group) => {
-          const visibleItems = group.items.filter((item) => hasPageAccess(orgRole, item.path, clinicType));
+          const visibleItems = group.items.filter((item) =>
+            hasPageAccess(orgRole, item.path, clinicType) &&
+            !(isBranch && (item.path === "website-settings" || item.path === "shop-management"))
+          );
           if (visibleItems.length === 0) return null;
 
           return (

@@ -25,6 +25,7 @@ export default function PublicShopPage() {
       .from("organizations")
       .select("id, name, slug, logo_url, settings")
       .eq("slug", slug)
+        .is("parent_org_id", null)
       .maybeSingle()
       .then(({ data }) => {
         setClinic(data);

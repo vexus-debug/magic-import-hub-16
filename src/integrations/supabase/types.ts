@@ -2520,6 +2520,7 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          parent_org_id: string | null
           phone: string | null
           settings: Json | null
           slug: string
@@ -2533,6 +2534,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          parent_org_id?: string | null
           phone?: string | null
           settings?: Json | null
           slug: string
@@ -2546,12 +2548,21 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          parent_org_id?: string | null
           phone?: string | null
           settings?: Json | null
           slug?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "organizations_parent_org_id_fkey"
+            columns: ["parent_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_consent_forms: {
         Row: {
@@ -5520,6 +5531,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_branch: {
+        Args: {
+          p_address?: string
+          p_email?: string
+          p_name: string
+          p_parent_org_id: string
+          p_phone?: string
+          p_slug: string
+        }
+        Returns: string
+      }
       create_org_for_new_user: {
         Args: {
           p_clinic_name: string
@@ -5547,6 +5569,18 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_org_branches: {
+        Args: { p_org_id: string }
+        Returns: {
+          address: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          slug: string
+        }[]
+      }
       next_lab_serial: {
         Args: { _kind: string; _org_id: string; _prefix: string }
         Returns: string

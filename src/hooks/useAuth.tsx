@@ -15,6 +15,7 @@ interface OrgMembership {
   org_name: string;
   org_slug: string;
   clinic_type: string;
+  parent_org_id: string | null;
 }
 
 interface AuthContextType {
@@ -71,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fetch org memberships
       const { data: memberships } = await supabase
         .from("org_members")
-        .select("org_id, role, organizations(name, slug, clinic_type)")
+        .select("org_id, role, organizations(name, slug, clinic_type, parent_org_id)")
         .eq("user_id", userId);
 
       setOrgMemberships(
@@ -81,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           org_name: m.organizations?.name || "",
           org_slug: m.organizations?.slug || "",
           clinic_type: m.organizations?.clinic_type || "dental",
+          parent_org_id: m.organizations?.parent_org_id ?? null,
         }))
       );
     } catch (error) {
