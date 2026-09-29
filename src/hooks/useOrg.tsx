@@ -10,7 +10,10 @@ interface OrgContextType {
     org_slug: string;
     clinic_type: string;
     role: string;
+    parent_org_id: string | null;
   } | null;
+  isBranch: boolean;
+  mainOrgId: string | null;
   setCurrentOrgBySlug: (slug: string) => void;
   basePath: string;
 }
@@ -19,6 +22,8 @@ const OrgContext = createContext<OrgContextType>({
   currentOrg: null,
   setCurrentOrgBySlug: () => {},
   basePath: "",
+  isBranch: false,
+  mainOrgId: null,
 });
 
 export function OrgProvider({ children }: { children: ReactNode }) {
@@ -39,13 +44,14 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         org_slug: membership.org_slug,
         clinic_type: membership.clinic_type,
         role: membership.role,
+        parent_org_id: membership.parent_org_id ?? null,
       });
     }
   };
 
   // Sync from URL slug
   useEffect(() => {
-    if (devPreview) { if (!currentOrg) setCurrentOrg({ org_id: "dev", org_name: "Dev Clinic", org_slug: slug || "dev", clinic_type: "dental", role: "owner" }); return; }
+    if (devPreview) { if (!currentOrg) setCurrentOrg({ org_id: "dev", org_name: "Dev Clinic", org_slug: slug || "dev", clinic_type: "dental", role: "owner", parent_org_id: null }); return; }
     if (loading || !slug) return;
 
     // Already resolved for this slug — nothing to do
@@ -59,6 +65,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         org_slug: membership.org_slug,
         clinic_type: membership.clinic_type,
         role: membership.role,
+        parent_org_id: membership.parent_org_id ?? null,
       });
       return;
     }
@@ -68,7 +75,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       let cancelled = false;
       supabase
         .from("organizations")
-        .select("id, name, slug, clinic_type")
+        .select("id, name, slug, clinic_type, parent_org_id")
         .eq("slug", slug)
         .maybeSingle()
         .then(({ data, error }) => {
@@ -80,6 +87,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
               org_slug: data.slug,
               clinic_type: data.clinic_type,
               role: "owner", // super admin gets full access
+              parent_org_id: (data as any).parent_org_id ?? null,
             });
           } else if (!error) {
             // Slug genuinely does not exist
@@ -105,11 +113,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     }
   }, [currentOrg?.org_slug]);
 
+  const isBranch = !!currentOrg?.parent_org_id;
+  const mainOrgId = currentOrg ? (currentOrg.parent_org_id || currentOrg.org_id) : null;
   const basePath = currentOrg ? `/clinic/${currentOrg.org_slug}` : "";
 
 
   return (
-    <OrgContext.Provider value={{ currentOrg, setCurrentOrgBySlug, basePath }}>
+    <OrgContext.Provider value={{ currentOrg, setCurrentOrgBySlug, basePath, isBranch, mainOrgId }}>
       {children}
     </OrgContext.Provider>
   );
